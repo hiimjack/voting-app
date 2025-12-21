@@ -1,0 +1,107 @@
+# name: "voteting-app"
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:18.1-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: voting_db
+      POSTGRES_USER: voting_user
+      POSTGRES_PASSWORD: heivu0jaisahbei6cie0baephaC5Fo
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  pgadmin:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    container_name: pgadmin
+    image: dpage/pgadmin4:9.11
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@local.host"
+      PGADMIN_DEFAULT_PASSWORD: "nu7Eej3thieth4eishieXuZaiy1tho"
+      PGADMIN_DISABLE_POSTFIX: true
+      PGADMIN_LISTEN_PORT: "80"
+    ports:
+      - "3000:80"
+
+  vote:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    container_name: vote
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - SERVICE_NAME=vote
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:80/healthz').then(r => process.exit(r.ok ? 0 : 1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: voting_db
+      DB_USER: voting_user
+      DB_PASSWORD: heivu0jaisahbei6cie0baephaC5Fo
+      PORT: 80
+      OPTION_A: cats
+      OPTION_B: dogs
+      LOG_LEVEL: info
+    ports:
+      - "3001:80"
+
+  results:
+    depends_on:
+      postgres:
+        condition: service_healthy
+      vote:
+        condition: service_healthy
+    container_name: results
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - SERVICE_NAME=results
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:80/healthz').then(r => process.exit(r.ok ? 0 : 1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: voting_db
+      DB_USER: voting_user
+      DB_PASSWORD: heivu0jaisahbei6cie0baephaC5Fo
+      PORT: 80
+      LOG_LEVEL: info
+    ports:
+      - "3002:80"

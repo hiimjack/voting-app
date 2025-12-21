@@ -1,5 +1,9 @@
 {
   "recommendations": [
-    "aaron-bond.better-comments"
+    "aaron-bond.better-comments",
+    "ms-azuretools.vscode-docker",
+    "ms-azuretools.vscode-containers",
+    "esbenp.prettier-vscode",
+    "github.vscode-github-actions"
   ]
 }

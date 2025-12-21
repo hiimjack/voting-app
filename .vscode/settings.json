@@ -1,10 +1,10 @@
 {
   "files.encoding": "utf8",
   "files.eol": "\n",
-  "files.trimTrailingWhitespace": false,
+  "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
-  "files.trimFinalNewlines": false,
-  "editor.trimAutoWhitespace": false,
+  "files.trimFinalNewlines": true,
+  "editor.trimAutoWhitespace": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

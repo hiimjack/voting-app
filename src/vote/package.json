@@ -1,0 +1,34 @@
+{
+  "name": "vote",
+  "version": "0.0.1",
+  "main": "index.js",
+  "description": "Microservice for collecting and storing votes with configurable voting options",
+  "homepage": "https://github.com/hiimjack/voting-app#readme",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "24"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "nodejs",
+    "voting-app"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/hiimjack/voting-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hiimjack/voting-app/issues"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "pg": "^8.16.3",
+    "winston": "^3.19.0"
+  }
+}

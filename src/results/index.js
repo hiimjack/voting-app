@@ -3,7 +3,7 @@ import pg from "pg";
 import dotenv from "dotenv";
 import winston from "winston";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const { Pool } = pg;
 
@@ -13,13 +13,13 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -54,13 +54,11 @@ app.get("/healthz", async (req, res) => {
       .json({ status: "healthy", service: "results", database: "connected" });
   } catch (err) {
     logger.error("Health check failed", { error: err.message });
-    res
-      .status(503)
-      .json({
-        status: "unhealthy",
-        service: "results",
-        database: "disconnected",
-      });
+    res.status(503).json({
+      status: "unhealthy",
+      service: "results",
+      database: "disconnected",
+    });
   }
 });
 
@@ -70,9 +68,9 @@ app.get("/", async (req, res) => {
     logger.debug("Results page accessed");
 
     const result = await pool.query(`
-      SELECT option, COUNT(*) as count 
-      FROM votes 
-      GROUP BY option 
+      SELECT option, COUNT(*) as count
+      FROM votes
+      GROUP BY option
       ORDER BY count DESC
     `);
 
@@ -233,13 +231,13 @@ app.get("/", async (req, res) => {
         <div class="container">
           <h1>Voting Results</h1>
           <div class="total">Total votes: <strong>${total}</strong></div>
-          
+
           ${
             req.query.deleted
               ? '<div class="success-message">All votes deleted successfully</div>'
               : ""
           }
-          
+
           <div class="results">
             ${
               total === 0
@@ -259,8 +257,8 @@ app.get("/", async (req, res) => {
                   <div class="result-header">
                     <div class="option-name">${option}</div>
                     <div class="vote-count">${count} ${
-                        count === 1 ? "vote" : "votes"
-                      }</div>
+                      count === 1 ? "vote" : "votes"
+                    }</div>
                   </div>
                   <div class="bar-container">
                     <div class="bar" style="width: ${barWidth}%">
@@ -273,17 +271,17 @@ app.get("/", async (req, res) => {
                     .join("")
             }
           </div>
-          
+
           <div class="actions">
             <button class="refresh-btn" onclick="location.reload()">Refresh</button>
             <button class="delete-btn" onclick="if(confirm('Are you sure you want to delete all votes?')) { document.getElementById('deleteForm').submit(); }">
               Delete All
             </button>
           </div>
-          
+
           <form id="deleteForm" method="POST" action="/delete-all" style="display: none;"></form>
         </div>
-        
+
         <script>
           // Auto-refresh every 5 seconds
           setTimeout(() => location.reload(), 5000);
@@ -319,9 +317,9 @@ app.post("/delete-all", async (req, res) => {
 app.get("/api/results", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT option, COUNT(*) as count 
-      FROM votes 
-      GROUP BY option 
+      SELECT option, COUNT(*) as count
+      FROM votes
+      GROUP BY option
       ORDER BY count DESC
     `);
 

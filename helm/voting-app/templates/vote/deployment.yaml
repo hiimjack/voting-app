@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "voting-app.fullname" . }}-vote
+  labels:
+    {{- include "voting-app.vote.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: 5
+  {{- if not .Values.vote.autoscaling.enabled }}
+  replicas: {{ .Values.vote.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "voting-app.vote.selectorLabels" . | nindent 6 }}
+{{- if .Values.vote.strategy }}
+  strategy:
+    {{- .Values.vote.strategy | toYaml | nindent 4 }}
+{{- end }}
+  template:
+    metadata:
+      {{- with .Values.vote.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "voting-app.vote.labels" . | nindent 8 }}
+        {{- with .Values.vote.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.vote.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "voting-app.vote.serviceAccountName" . }}-vote
+      {{- with .Values.vote.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: vote
+          {{- with .Values.vote.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.vote.image.repository }}:{{ .Values.vote.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.vote.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.vote.service.port }}
+              protocol: TCP
+          env:
+            - name: LOG_LEVEL
+              value: {{ .Values.vote.environment.LOG_LEVEL | quote }}
+            - name: OPTION_A
+              value: {{ .Values.vote.environment.OPTION_A | quote }}
+            - name: OPTION_B
+              value: {{ .Values.vote.environment.OPTION_B | quote }}
+            - name: PORT
+              value: {{ .Values.vote.service.port | quote }}
+            - name: DB_HOST
+              value: {{ include "voting-app.fullname" . }}-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: {{ .Values.postgres.environment.POSTGRES_DB | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgres.environment.POSTGRES_USER | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "voting-app.fullname" . }}-postgres
+                  key: POSTGRES_PASSWORD
+          {{/*
+          */}}
+          {{/*
+          {{- with .Values.vote.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.vote.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          */}}
+          {{- with .Values.vote.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.vote.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.vote.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.vote.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

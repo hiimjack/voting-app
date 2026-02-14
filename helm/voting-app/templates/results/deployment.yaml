@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "voting-app.fullname" . }}-results
+  labels:
+    {{- include "voting-app.results.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: 5
+  {{- if not .Values.results.autoscaling.enabled }}
+  replicas: {{ .Values.results.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "voting-app.results.selectorLabels" . | nindent 6 }}
+{{- if .Values.results.strategy }}
+  strategy:
+    {{- .Values.results.strategy | toYaml | nindent 4 }}
+{{- end }}
+  template:
+    metadata:
+      {{- with .Values.results.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "voting-app.results.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.results.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "voting-app.results.serviceAccountName" . }}-results
+      {{- with .Values.results.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: results
+          {{- with .Values.results.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.results.image.repository }}:{{ .Values.results.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.results.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.results.service.port }}
+              protocol: TCP
+          env:
+            - name: LOG_LEVEL
+              value: {{ .Values.results.environment.LOG_LEVEL | quote }}
+            - name: PORT
+              value: {{ .Values.results.service.port | quote }}
+            - name: DB_HOST
+              value: {{ include "voting-app.fullname" . }}-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: {{ .Values.postgres.environment.POSTGRES_DB | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgres.environment.POSTGRES_USER | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "voting-app.fullname" . }}-postgres
+                  key: POSTGRES_PASSWORD
+          {{/*
+          {{- with .Values.results.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.results.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          */}}
+          {{- with .Values.results.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.results.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.results.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.results.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

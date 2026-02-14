@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "voting-app.fullname" . }}-results
+  labels:
+    {{- include "voting-app.results.labels" . | nindent 4 }}
+{{- if .Values.results.service.annotations }}
+  annotations:
+    {{- .Values.results.service.annotations | toYaml | nindent 4 }}
+{{- end }}
+spec:
+  type: {{ .Values.results.service.type }}
+  ports:
+    - port: {{ .Values.results.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "voting-app.results.selectorLabels" . | nindent 4 }}

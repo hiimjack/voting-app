@@ -32,7 +32,7 @@ postgres:
 vote:
   replicaCount: 1
   image:
-    repository: "ghcr.io/hiimjack/voting-app/vote"
+    repository: "ghcr.io/hiimjack/voting-app-vote"
     pullPolicy: IfNotPresent
     tag: ""
 
@@ -160,7 +160,7 @@ vote:
 results:
   replicaCount: 1
   image:
-    repository: "ghcr.io/hiimjack/voting-app/results"
+    repository: "ghcr.io/hiimjack/voting-app-results"
     pullPolicy: IfNotPresent
     tag: ""
 

@@ -32,4 +32,4 @@ jobs:
       - name: Push Helm chart
         run: |
           CHART_PACKAGE=$(ls *.tgz)
-          helm push voting-app-*.tgz oci://ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-helm
+          helm push voting-app-*.tgz oci://ghcr.io/${{ github.repository }}-helm

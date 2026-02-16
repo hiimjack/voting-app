@@ -1,0 +1,35 @@
+name: Publish Helm Chart
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v4.1.1
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io \
+            --username "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Package Helm chart
+        run: helm package ./helm/voting-app
+
+      - name: Push Helm chart
+        run: |
+          CHART_PACKAGE=$(ls *.tgz)
+          helm push voting-app-*.tgz oci://ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-helm

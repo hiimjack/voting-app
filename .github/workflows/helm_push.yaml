@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Helm
         uses: azure/setup-helm@v4
@@ -27,9 +27,9 @@ jobs:
             --password-stdin
 
       - name: Package Helm chart
-        run: helm package ./helm/voting-app
+        run: |
+          helm lint ./helm/voting-app
+          helm package ./helm/voting-app
 
       - name: Push Helm chart
-        run: |
-          CHART_PACKAGE=$(ls *.tgz)
-          helm push voting-app-*.tgz oci://ghcr.io/${{ github.repository }}-helm
+        run: helm push voting-app-*.tgz oci://ghcr.io/${{ github.repository }}

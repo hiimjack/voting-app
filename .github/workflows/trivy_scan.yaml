@@ -38,10 +38,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service_name }}
-          tags: |
-            ${{ github.ref_name }}
+          images: ${{ matrix.service_name }}
+          tags: ${{ github.ref_name }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -61,7 +59,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.34.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service_name }}:${{ github.ref_name }}
+          image-ref: ${{ matrix.service_name }}:${{ github.ref_name }}
           format: "sarif"
           output: "trivy-results-${{ matrix.service_name }}.sarif"
       - name: Upload Trivy scan results to GitHub Security tab

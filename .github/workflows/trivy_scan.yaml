@@ -47,13 +47,10 @@ jobs:
           file: ./docker/Dockerfile
           build-args: |
             SERVICE_NAME=${{ matrix.service_name }}
-          platforms: |
-            linux/amd64
-            linux/arm64
           push: false
           sbom: true
           provenance: mode=max
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ matrix.service_name }}:${{ github.ref_name }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Run Trivy vulnerability scanner

@@ -48,6 +48,7 @@ jobs:
           build-args: |
             SERVICE_NAME=${{ matrix.service_name }}
           push: false
+          load: true
           sbom: true
           provenance: mode=max
           tags: ${{ matrix.service_name }}:${{ github.ref_name }}

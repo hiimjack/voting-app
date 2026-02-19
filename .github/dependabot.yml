@@ -8,3 +8,18 @@ updates:
     target-branch: "master"
     labels:
       - "enhancement"
+  # Maintain dependencies for npm packages
+  - package-ecosystem: "npm"
+    directory: "/src/results"
+    schedule:
+      interval: "monthly"
+    target-branch: "master"
+    labels:
+      - "enhancement"
+  - package-ecosystem: "npm"
+    directory: "/src/vote"
+    schedule:
+      interval: "monthly"
+    target-branch: "master"
+    labels:
+      - "enhancement"

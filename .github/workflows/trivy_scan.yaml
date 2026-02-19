@@ -60,3 +60,10 @@ jobs:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service_name }}:latest
           format: "table"
           vuln-type: "os,library"
+          output: trivy-report.table
+      - name: Upload Vulnerability Scan Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report-${{ matrix.service_name }}
+          path: trivy-report.table
+          retention-days: 30

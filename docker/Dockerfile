@@ -9,7 +9,14 @@ ARG SERVICE_NAME
 WORKDIR /app
 
 COPY ./src/${SERVICE_NAME}/package*.json .
-RUN npm install --omit=dev
+
+RUN npm config set fund false && \
+    npm config set update-notifier false && \
+    npm ci --omit=dev && \
+    npm cache clean --force
+
+COPY ./src/${SERVICE_NAME}/ .
+
 
 
 FROM node:${NODE_VERSION}-slim AS final
@@ -20,9 +27,9 @@ ARG SERVICE_NAME
 
 WORKDIR /app
 
-COPY --from=dependencies /app/node_modules/ ./node_modules
+COPY --from=dependencies --chown=node:node /app/ .
 
-COPY ./src/${SERVICE_NAME}/ .
+USER node
 
 EXPOSE 3000
 

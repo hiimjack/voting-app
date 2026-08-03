@@ -24,4 +24,6 @@ COPY --from=dependencies /app/node_modules/ ./node_modules
 
 COPY ./src/${SERVICE_NAME}/ .
 
+EXPOSE 3000
+
 CMD [ "npm", "run", "start"]
